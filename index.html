@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language Levels Game</title>
+  <style>
+    body {
+      background: #121212;
+      color: #00FFAA;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+    }
+    #level-container {
+      margin-top: 5vh;
+    }
+    .activity {
+      display: none;
+      margin-top: 2vh;
+    }
+    button {
+      background: #00FFAA;
+      color: #121212;
+      border: none;
+      padding: 1vh 1vh;
+      font-size: 2vh;
+      font-weight: bold;
+      border-radius: 0.5vh;
+      cursor: pointer;
+      margin: 0.5vh;
+      text-transform: uppercase;
+    }
+    button:hover {
+      background: #00CC88;
+    }
+    .question {
+      font-size: 3vh;
+      margin-bottom: 2vh;
+      text-transform: uppercase;
+      color: #FFFFFF;
+    }
+    #catch-screen {
+      box-sizing: border-box;
+    }
+    .translation-button {
+      background: #1E1E1E;
+      color: #00FFAA;
+      border: 0.2vh solid #00FFAA;
+      font-size: 2vh;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: absolute;
+      display: inline-block;
+      padding: 1vh 1vh;
+      min-width: fit-content;
+      width: auto;
+      white-space: nowrap;
+    }
+    .translation-button:hover {
+      background: #00FFAA;
+      color: #121212;
+      border-color: #121212;
+    }
+    .translation-button.correct {
+      background: #00CC88 !important;
+      color: #121212;
+      border-color: #121212;
+    }
+    .translation-button.incorrect {
+      background: #FF4444 !important;
+      color: #FFFFFF;
+      border-color: #FFFFFF;
+    }
+    /* Speed control buttons */
+    #speed-controls {
+      position: absolute;
+      bottom: 0.5vh;
+      right: 1vh;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="level-container">
+    <button onclick="startLevel()">Start</button>
+  </div>
+
+  <!-- Speed Control Buttons (only visible in Catch activity) -->
+  <div id="speed-controls" style="display: none;">
+    <button onclick="makeSlower()">Slower</button>
+    <button id="normalSpeedBtn" onclick="resetSpeed()" style="display: none;">Normal</button>
+  </div>
+
+  <!-- Activity 1: Choose -->
+  <div id="choose-activity" class="activity">
+    <div class="question" id="choose-question">Question here</div>
+    <div id="choose-buttons"></div>
+  </div>
+
+  <!-- Activity 2: Catch -->
+  <div id="catch-activity" class="activity">
+    <div class="question" id="catch-question"></div>
+    <div id="catch-screen" style="position: relative; width: 95%; height: 85vh; margin: auto; border: 0.2vh solid #00FFAA; overflow: hidden;"></div>
+  </div>
+
+  <!-- Activity 3: Listen -->
+  <div id="listen-activity" class="activity">
+    <div class="question" id="listen-question">Listen and choose the correct answer</div>
+    <div id="listen-buttons"></div>
+    <button id="listen-confirm" onclick="checkListenAnswer()">Confirm</button>
+  </div>
+
+  <script>
+    const levels = ["choose", "catch", "listen"];
+    const questions = [
+      { question: "hello", translation: "hola" },
+      { question: "not make the best use of that", translation: "desaprovechar eso" },
+      { question: "quick", translation: "rapidamente" }
+    ];
+
+    let currentLevelIndex = 0;
+    let currentQuestionIndex = 0;
+    let mistakes = false;
+    let selectedListenButton = null;
+    let movingRectangles = [];
+
+    let speedMultiplier = 1; // Default speed
+
+    function startLevel() {
+      document.getElementById("level-container").style.display = "none";
+      currentQuestionIndex = 0;
+      mistakes = false;
+      showActivity(levels[currentLevelIndex]);
+    }
+
+    function showActivity(activityName) {
+      document.querySelectorAll(".activity").forEach(div => div.style.display = "none");
+      document.getElementById(`${activityName}-activity`).style.display = "block";
+
+      if (activityName === "choose") {
+        document.getElementById("speed-controls").style.display = "none";
+        loadChoose();
+      }
+      else if (activityName === "catch") {
+        document.getElementById("speed-controls").style.display = "block";
+        loadCatch();
+      }
+      else if (activityName === "listen") {
+        document.getElementById("speed-controls").style.display = "none";
+        loadListen();
+      }
+    }
+
+    function finishLevel(success) {
+      document.getElementById("speed-controls").style.display = "none";
+      if (success && !mistakes) {
+        currentLevelIndex++;
+        if (currentLevelIndex >= levels.length) {
+          alert("🎉 Congratulations! You've finished all levels!");
+          currentLevelIndex = 0;
+          document.getElementById("level-container").style.display = "block";
+          document.querySelectorAll(".activity").forEach(div => div.style.display = "none");
+          return;
+        }
+      } else {
+        alert("❌ Mistakes detected! Retry the level.");
+      }
+      startLevel();
+    }
+
+    // -----------------
+    // Activity: Choose (static buttons)
+    // -----------------
+    function loadChoose() {
+      const q = questions[currentQuestionIndex];
+      document.getElementById("choose-question").innerText = q.question;
+      const container = document.getElementById("choose-buttons");
+      container.innerHTML = "";
+
+      const options = shuffle([...questions.map(q => q.translation)]);
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "translation-button";
+        btn.innerText = opt;
+        btn.style.position = "static"; // Ensure static
+        btn.onclick = () => {
+          if (opt === q.translation) {
+            btn.classList.add("correct");
+            setTimeout(() => nextChooseQuestion(), 1000);
+          } else {
+            btn.classList.add("incorrect");
+            mistakes = true;
+          }
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function nextChooseQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadChoose();
+      } else {
+        finishLevel(!mistakes);
+      }
+    }
+
+    // ----------------
+    // Activity: Catch (moving buttons)
+    // ----------------
+    function loadCatch() {
+      const q = questions[currentQuestionIndex];
+      document.getElementById("catch-question").innerText = q.question;
+      const screen = document.getElementById("catch-screen");
+      screen.innerHTML = "";
+      movingRectangles = [];
+
+      questions.forEach(item => {
+        const btn = document.createElement("button");
+        btn.className = "translation-button";
+        btn.innerText = item.translation;
+        screen.appendChild(btn);
+        positionRectangle(btn, screen);
+        moveRectangle(btn, screen);
+
+        btn.onclick = () => {
+          if (item.translation === q.translation) {
+            btn.classList.add("correct");
+            setTimeout(() => nextCatchQuestion(), 1000);
+          } else {
+            btn.classList.add("incorrect");
+            mistakes = true;
+          }
+        };
+        movingRectangles.push(btn);
+      });
+    }
+
+    function positionRectangle(rectangle, screen) {
+      const [minX, minY, maxX, maxY] = getBounds(screen.offsetWidth, screen.offsetHeight, rectangle);
+      let initialX, initialY;
+      do {
+        initialX = getRandom(minX, maxX);
+        initialY = getRandom(minY, maxY);
+        rectangle.style.left = `${initialX}px`;
+        rectangle.style.top = `${initialY}px`;
+      } while (checkCollision(rectangle, movingRectangles));
+    }
+
+    function getBounds(screenWidth, screenHeight, rectangle) {
+      const rectWidth = rectangle.offsetWidth;
+      const rectHeight = rectangle.offsetHeight;
+      return [0, 0, screenWidth - rectWidth, screenHeight - rectHeight];
+    }
+
+    function getRandom(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function checkCollision(rectangle, rectangles) {
+      const r1 = {
+        left: rectangle.offsetLeft,
+        right: rectangle.offsetLeft + rectangle.offsetWidth,
+        top: rectangle.offsetTop,
+        bottom: rectangle.offsetTop + rectangle.offsetHeight
+      };
+      return rectangles.some(other => {
+        if (other !== rectangle) {
+          const r2 = {
+            left: other.offsetLeft,
+            right: other.offsetLeft + other.offsetWidth,
+            top: other.offsetTop,
+            bottom: other.offsetTop + other.offsetHeight
+          };
+          return !(
+            r1.right < r2.left ||
+            r1.left > r2.right ||
+            r1.bottom < r2.top ||
+            r1.top > r2.bottom
+          );
+        }
+        return false;
+      });
+    }
+
+    function moveRectangle(rectangle, screen) {
+      let directionX = (Math.random() < 0.5 ? -1 : 1) * (1 + Math.random() * 2);
+      let directionY = (Math.random() < 0.5 ? -1 : 1) * (1 + Math.random() * 2);
+
+      function move() {
+        let currentX = parseFloat(rectangle.style.left) || 0;
+        let currentY = parseFloat(rectangle.style.top) || 0;
+
+        const maxX = screen.clientWidth - rectangle.offsetWidth;
+        const maxY = screen.clientHeight - rectangle.offsetHeight;
+
+        if (currentX <= 0 || currentX >= maxX) directionX *= -1;
+        if (currentY <= 0 || currentY >= maxY) directionY *= -1;
+
+        currentX = Math.max(0, Math.min(currentX + directionX * speedMultiplier, maxX));
+        currentY = Math.max(0, Math.min(currentY + directionY * speedMultiplier, maxY));
+
+        rectangle.style.left = `${currentX}px`;
+        rectangle.style.top = `${currentY}px`;
+
+        if (checkCollision(rectangle, movingRectangles)) {
+          directionX *= -1;
+          directionY *= -1;
+        }
+
+        requestAnimationFrame(move);
+      }
+
+      move();
+    }
+
+    function nextCatchQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadCatch();
+      } else {
+        finishLevel(!mistakes);
+      }
+    }
+
+    // -----------------
+    // Activity: Listen (static buttons)
+    // -----------------
+    function loadListen() {
+      const q = questions[currentQuestionIndex];
+      document.getElementById("listen-question").innerText = q.question;
+      const container = document.getElementById("listen-buttons");
+      container.innerHTML = "";
+      selectedListenButton = null;
+
+      const options = shuffle([...questions]);
+      options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "translation-button";
+        btn.style.position = "static";
+        btn.style.color = "transparent";
+        btn.onclick = () => {
+          if (selectedListenButton) {
+            selectedListenButton.classList.remove("active");
+          }
+          selectedListenButton = btn;
+          btn.classList.add("active");
+          const utterance = new SpeechSynthesisUtterance(opt.translation);
+          utterance.lang = 'es-ES';
+          speechSynthesis.speak(utterance);
+        };
+        btn.dataset.correct = (opt.translation === q.translation);
+        container.appendChild(btn);
+      });
+    }
+
+    function checkListenAnswer() {
+      if (!selectedListenButton) return;
+      if (selectedListenButton.dataset.correct === "true") {
+        selectedListenButton.classList.add("correct");
+        setTimeout(() => nextListenQuestion(), 1000);
+      } else {
+        selectedListenButton.classList.add("incorrect");
+        mistakes = true;
+      }
+    }
+
+    function nextListenQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        loadListen();
+      } else {
+        finishLevel(!mistakes);
+      }
+    }
+
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    // -----------------------
+    // Speed Control Functions
+    // -----------------------
+    function makeSlower() {
+      speedMultiplier *= 0.85; // Decrease by 15%
+      document.getElementById("normalSpeedBtn").style.display = "inline-block";
+    }
+
+    function resetSpeed() {
+      speedMultiplier = 1;
+      document.getElementById("normalSpeedBtn").style.display = "none";
+    }
+  </script>
+</body>
+</html>
