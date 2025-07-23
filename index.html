@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
   <title>Language Levels Game</title>
   <style>
     body {
@@ -11,7 +13,48 @@
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
+      overflow: hidden;
     }
+    .microphone-icon {
+    color: red;
+    font-size: 5vh;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 0.7vh solid #ff0000;
+    justify-content: space-between;
+    padding: 15% 30%;
+    transition: all 1s ease;
+}
+
+.microphone-icon:hover {
+    background-color: transparent;
+    text-shadow: 0 0 0.5vh #F03200, 0 0 0.5vh #F00032, 0 0 0.7vh darkred;
+    box-shadow: 0 0 1vh #F03200, 0 0 3vh #F00032, 0 0 5vh red;
+}
+ #start-speak-btn {
+    background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  padding: 16px;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#start-speak-btn:hover {
+  transform: scale(1.05);    background-color: darkred;
+
+}
+
+#start-speak-btn:active {
+  transform: scale(0.95);
+    background-color: transparent;
+}
     #level-container {
       margin-top: 5vh;
     }
@@ -41,9 +84,32 @@
       color: #FFFFFF;
     }
     #catch-screen {
-      box-sizing: border-box;
+      position: relative;
+      width: 95%;
+      height: 85vh;
+      margin: auto;
+      border: 0.2vh solid #00FF77;
+      overflow: hidden;
     }
-    .translation-button {
+     #tunnel-screen {
+      position: relative;
+      width: 95%;
+      height: 85vh;
+      margin: auto;
+      border: 0.2vh solid #FF77FF;
+      overflow: hidden;
+    }
+    #tunnel-screen {
+  position: relative;
+  overflow: hidden;
+}
+
+.tunnel-button {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s;
+}
+    .translation-button, .moving-button {
       background: #1E1E1E;
       color: #00FFAA;
       border: 0.2vh solid #00FFAA;
@@ -54,343 +120,874 @@
       display: inline-block;
       padding: 1vh 1vh;
       min-width: fit-content;
-      width: auto;
       white-space: nowrap;
     }
-    .translation-button:hover {
+    .translation-button:hover, .moving-button:hover {
       background: #00FFAA;
       color: #121212;
       border-color: #121212;
     }
-    .translation-button.correct {
-      background: #00CC88 !important;
-      color: #121212;
-      border-color: #121212;
+    .moving-button.correct {
+      background-color: green;
+      color: white;
     }
-    .translation-button.incorrect {
-      background: #FF4444 !important;
-      color: #FFFFFF;
-      border-color: #FFFFFF;
+    .moving-button.incorrect {
+      background-color: red;
+      color: white;
     }
-    /* Speed control buttons */
     #speed-controls {
       position: absolute;
       bottom: 0.5vh;
       right: 1vh;
       z-index: 10;
     }
+    /* Default translation button styles */
+.translation-button, .moving-button {
+  background: #1E1E1E;
+  color: #00FFAA;
+  border: 0.2vh solid #00FFAA;
+  font-size: 2vh;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: absolute;
+  display: inline-block;
+  padding: 1vh 1vh;
+  min-width: fit-content;
+  white-space: nowrap;
+}
+
+/* Hover for default */
+.translation-button:hover, .moving-button:hover {
+  background: #00FFAA;
+  color: #121212;
+  border-color: #121212;
+}
+
+/* Specific styles for Choose activity */
+.choose-button {
+  background: #222244;
+  color: #FFD700;
+  border-color: #FFD700;
+}
+.choose-button:hover {
+  background: #FFD700;
+  color: #222244;
+}
+
+/* Specific styles for Tunnel activity */
+.tunnel-button {
+  background: #440044;
+  color: #FF77FF;
+  border-color: #FF77FF;
+}
+.tunnel-button:hover {
+  background: #FF77FF;
+  color: #440044;
+}
+
+/* Specific styles for Catch activity */
+.catch-button {
+  background: #004422;
+  color: #00FF77;
+  border-color: #00FF77;
+}
+.catch-button:hover {
+  background: #00FF77;
+  color: #004422;
+}
+
+/* Specific styles for Listen activity */
+.listen-button {
+  background: #333300;
+  color: #FFFF66;
+  border-color: #FFFF66;
+
+}
+.listen-button:hover {
+  background: #FFFF66;
+  color: #333300;
+}
+  #listen-confirm{
+  background: black;
+  color: #FFFF66;
+  height:5vh;
+    border-color: #FFFF66;
+
+}
+ #listen-confirm:active {
+      background: #FFFF66;
+  color: black;
+}
+.moving-button.correct,
+.translation-button.correct {
+  background-color: green;
+  color: white;
+}
+.moving-button.incorrect,
+.translation-button.incorrect {
+  background-color: red;
+  color: white;
+}
+#choose-activity, #listen-activity {
+  display: flex;
+  flex-direction: column;
+  height: 85vh; /* already used elsewhere, match it */
+  padding: 2vh;
+  box-sizing: border-box;
+}
+
+/* Question stays at top */
+#choose-question, #listen-question {
+  margin-bottom: 2vh;
+  flex-shrink: 0;
+}
+
+/* Button container fills remaining space */
+#choose-buttons, #listen-buttons {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-evenly;
+  width: 100%;
+  height: 100%;
+  gap: 1vh;
+}
+.choose-button, .listen-button {
+  flex: 1 1 auto;
+  width: 100%;
+  font-size: 2.5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1vh;
+  box-sizing: border-box;
+  min-height: 5vh;
+}
+
+#speak-activity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3vh 2vw;
+  text-align: center;
+  border-color: #121212;
+
+}
+
+/* Question text */
+#speak-question {
+  font-size: 2em;
+  margin-bottom: 2vh;
+}
+
+/* Speak button */
+#speak-activity button {
+  padding: 1vh 2vw;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 10px;
+  background-color:black;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+#speak-activity button:hover {
+}
+
+/* Result box */
+#speak-result {
+  margin-top: 3vh;
+  padding: 2vh 2vw;
+  font-size: 1.1em;
+  max-width: 80%;
+  background-color: black;
+  border-left: 5px solid white;
+  border-radius: 10px;
+  line-height: 1.6em;
+}
+ .correct {
+    color: green;
+    font-weight: bold;
+    margin-right: 4px;
+  }
+  .incorrect {
+    color: orange;
+    font-weight: bold;
+    text-decoration: underline;
+    margin-right: 4px;
+  }
+  .expected {
+    color: gray;
+    font-style: italic;
+  }
+  .listening {
+    animation: pulse 1s infinite alternate;
+  }
+
+  @keyframes pulse {
+    from { background-color: #fff3cd; }
+    to { background-color: #ffeeba; }
+  }
+.result-box {
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.correct-box {
+  background-color: #e6f9e6; /* Light green */
+  border: 1px solid #a6d8a8;
+}
+
+.incorrect-box {
+  background-color: #fff4e6; /* Light orange */
+  border: 1px solid #f5c6a5;
+}
+
+.correct {
+  color: green;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.incorrect {
+  color: orange;
+  font-weight: bold;
+  text-decoration: underline;
+  margin-right: 4px;
+}
+
+.expected {
+  color: #555;
+  font-style: italic;
+}
+
+.listening {
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from { background-color: #fff3cd; }
+  to { background-color: #ffeeba; }
+}
+#message-box {
+  cursor: pointer;
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.9);
+  text-align: center;
+  z-index: 999;
+  font-size: 3vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2vh;
+  box-sizing: border-box;
+}
+
+
   </style>
 </head>
 <body>
-  <div id="level-container">
-    <button onclick="startLevel()">Start</button>
+<div id="level-container" style="width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center;">
+
+  <!-- Start Button -->
+  <button onclick="startLevel()" style="width: 100%; height: 30%; font-size: 1.5em;">Start</button>
+
+  <!-- Toggle Button -->
+  <button onclick="toggleActivities()" style="margin-top: 10px; width: 60%; height: 50px; font-size: 1.2em;">Choose Activity</button>
+
+  <!-- Activity Buttons -->
+  <div id="activity-buttons" style="display: none; flex-direction: column; align-items: center; gap: 1vh; margin-top:  1vh;">
+    <button onclick="playSingleActivity('choose')" style="width: 100vw; height: 50px;">Play Choose</button>
+    <button onclick="playSingleActivity('tunnel')" style="width: 100vw; height: 50px;">Play Tunnel</button>
+    <button onclick="playSingleActivity('catch')" style="width: 100vw; height: 50px;">Play Catch</button>
+    <button onclick="playSingleActivity('listen')" style="width: 100vw; height: 50px;">Play Listen</button>
+    <button onclick="playSingleActivity('speak')" style="width: 100vw; height: 50px;">Play Speak</button>
   </div>
+</div>
+
+
+<div id="message-box" style="
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.8);
+  text-align: center;
+  line-height: 100vh; /* This centers the text vertically */
+  font-size: 3vh;
+">
+</div>
+
+
 
   <!-- Speed Control Buttons (only visible in Catch activity) -->
-  <div id="speed-controls" style="display: none;">
-    <button onclick="makeSlower()">Slower</button>
+      <div id="speed-controls" style="display: none;">
     <button id="normalSpeedBtn" onclick="resetSpeed()" style="display: none;">Normal</button>
+
+    <button onclick="makeSlower()">Slower</button>
   </div>
 
   <!-- Activity 1: Choose -->
   <div id="choose-activity" class="activity">
-    <div class="question" id="choose-question">Question here</div>
+    <div class="question" id="choose-question"></div>
     <div id="choose-buttons"></div>
   </div>
 
-  <!-- Activity 2: Catch -->
-  <div id="catch-activity" class="activity">
-    <div class="question" id="catch-question"></div>
-    <div id="catch-screen" style="position: relative; width: 95%; height: 85vh; margin: auto; border: 0.2vh solid #00FFAA; overflow: hidden;"></div>
+  <!-- Activity 2: Tunnel -->
+  <div id="tunnel-activity" class="activity">
+    <div class="question" id="tunnel-question">Question here</div>
+    <div id="tunnel-screen"></div>
   </div>
 
-  <!-- Activity 3: Listen -->
+  <!-- Activity 3: Catch -->
+  <div id="catch-activity" class="activity">
+    <div class="question" id="catch-question"></div>
+    <div id="catch-screen"></div>
+  </div>
+
+  <!-- Activity 4: Listen -->
   <div id="listen-activity" class="activity">
     <div class="question" id="listen-question">Listen and choose the correct answer</div>
     <div id="listen-buttons"></div>
     <button id="listen-confirm" onclick="checkListenAnswer()">Confirm</button>
   </div>
+<div id="speak-activity" class="activity" style="display:none;">
+  <h3 id="speak-question"></h3>
+  <button id="start-speak-btn" onclick="startSpeaking()"><i class="fas fa-microphone microphone-icon"></i></button>
+  <div id="speak-result" class="result-box"></div>
+   <button id="prev-btn" onclick="prevSpeakQuestion()">Previous</button>
+    <button id="next-btn" onclick="nextSpeakQuestion()">Next</button>
+</div>
 
-  <script>
-    const levels = ["choose", "catch", "listen"];
-    const questions = [
-      { question: "hello", translation: "hola" },
-      { question: "not make the best use of that", translation: "desaprovechar eso" },
-      { question: "quick", translation: "rapidamente" }
-    ];
 
-    let currentLevelIndex = 0;
-    let currentQuestionIndex = 0;
-    let mistakes = false;
-    let selectedListenButton = null;
-    let movingRectangles = [];
+<script>
+const levels = ["choose", "tunnel", "catch", "listen", "speak"];
+const questions = [
+    { question: "but", translation: "pero" },
+ 
 
-    let speedMultiplier = 1; // Default speed
+  { question: "not make the best use of that", translation: "desaprovechar eso" },
+  { question: "quick", translation: "rapidamente" }
+];
 
-    function startLevel() {
-      document.getElementById("level-container").style.display = "none";
-      currentQuestionIndex = 0;
-      mistakes = false;
-      showActivity(levels[currentLevelIndex]);
-    }
+let currentLevelIndex = 0;
+let currentQuestionIndex = 0;
+let mistakes = false;
+let movingRectangles = [];
+let selectedListenButton = null;
+let speedMultiplier = 1; // Default speed
+let singleActivityMode = false; // Tracks if
+let currentActivity = ""; 
+function playSingleActivity(activityName) {
+  singleActivityMode = true;
+  currentActivity = activityName; // <-- Track it
+  document.getElementById("level-container").style.display = "none";
+  currentQuestionIndex = 0;
+  mistakes = false;
+  showActivity(activityName);
+}
 
-    function showActivity(activityName) {
-      document.querySelectorAll(".activity").forEach(div => div.style.display = "none");
-      document.getElementById(`${activityName}-activity`).style.display = "block";
+function startLevel() {
+  singleActivityMode = false;
+  currentActivity = levels[currentLevelIndex]; // <-- Track current level
+  document.getElementById("level-container").style.display = "none";
+  currentQuestionIndex = 0;
+  mistakes = false;
+  showActivity(currentActivity);
+}
 
-      if (activityName === "choose") {
-        document.getElementById("speed-controls").style.display = "none";
-        loadChoose();
-      }
-      else if (activityName === "catch") {
-        document.getElementById("speed-controls").style.display = "block";
-        loadCatch();
-      }
-      else if (activityName === "listen") {
-        document.getElementById("speed-controls").style.display = "none";
-        loadListen();
-      }
-    }
 
-    function finishLevel(success) {
-      document.getElementById("speed-controls").style.display = "none";
-      if (success && !mistakes) {
-        currentLevelIndex++;
-        if (currentLevelIndex >= levels.length) {
-          alert("🎉 Congratulations! You've finished all levels!");
+function showActivity(activityName) {
+  document.querySelectorAll(".activity").forEach(div => div.style.display = "none");
+  const activityDiv = document.getElementById(`${activityName}-activity`);
+  if (!activityDiv) {
+    console.error(`No element found for activity: ${activityName}-activity`);
+    return;
+  }
+  activityDiv.style.display = "block";
+
+  if (activityName === "choose") {
+    document.getElementById("speed-controls").style.display = "none";
+    loadChoose();
+  }
+  else if (activityName === "tunnel") {
+    document.getElementById("speed-controls").style.display = "none";
+    loadTunnel();
+  }
+  else if (activityName === "catch") {
+    document.getElementById("speed-controls").style.display = "block";
+    loadCatch();
+  }
+  else if (activityName === "listen") {
+    document.getElementById("speed-controls").style.display = "none";
+    loadListen();
+    
+  }
+}
+ 
+function finishLevel(success) {
+  document.getElementById("speed-controls").style.display = "none";
+
+  if (success && !mistakes) {
+    if (singleActivityMode) {
+      showMessage("✅ Activity completed! Click to return to menu.", () => {
+        singleActivityMode = false;
+        document.getElementById("level-container").style.display = "block";
+        document.querySelectorAll(".activity").forEach(div => div.style.display = "none");
+      });
+    } else {
+      currentLevelIndex++;
+      if (currentLevelIndex >= levels.length) {
+        showMessage("🎉 Congratulations! You've finished all levels! Click to restart.", () => {
           currentLevelIndex = 0;
           document.getElementById("level-container").style.display = "block";
           document.querySelectorAll(".activity").forEach(div => div.style.display = "none");
-          return;
-        }
+        });
       } else {
-        alert("❌ Mistakes detected! Retry the level.");
-      }
-      startLevel();
-    }
-
-    // -----------------
-    // Activity: Choose (static buttons)
-    // -----------------
-    function loadChoose() {
-      const q = questions[currentQuestionIndex];
-      document.getElementById("choose-question").innerText = q.question;
-      const container = document.getElementById("choose-buttons");
-      container.innerHTML = "";
-
-      const options = shuffle([...questions.map(q => q.translation)]);
-      options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.className = "translation-button";
-        btn.innerText = opt;
-        btn.style.position = "static"; // Ensure static
-        btn.onclick = () => {
-          if (opt === q.translation) {
-            btn.classList.add("correct");
-            setTimeout(() => nextChooseQuestion(), 1000);
-          } else {
-            btn.classList.add("incorrect");
-            mistakes = true;
-          }
-        };
-        container.appendChild(btn);
-      });
-    }
-
-    function nextChooseQuestion() {
-      currentQuestionIndex++;
-      if (currentQuestionIndex < questions.length) {
-        loadChoose();
-      } else {
-        finishLevel(!mistakes);
+        showMessage("✅ Level completed! Click to continue.", () => {
+          startLevel();
+        });
       }
     }
+  } else {
+    showMessage("⚠️ Mistakes detected! Click to retry.", () => {
+      currentQuestionIndex = 0;
+      mistakes = false;
+      showActivity(currentActivity); // <-- this fixes the retry issue
+    });
+  }
+}
 
-    // ----------------
-    // Activity: Catch (moving buttons)
-    // ----------------
-    function loadCatch() {
-      const q = questions[currentQuestionIndex];
-      document.getElementById("catch-question").innerText = q.question;
-      const screen = document.getElementById("catch-screen");
-      screen.innerHTML = "";
-      movingRectangles = [];
 
-      questions.forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = "translation-button";
-        btn.innerText = item.translation;
-        screen.appendChild(btn);
-        positionRectangle(btn, screen);
-        moveRectangle(btn, screen);
 
-        btn.onclick = () => {
-          if (item.translation === q.translation) {
-            btn.classList.add("correct");
-            setTimeout(() => nextCatchQuestion(), 1000);
-          } else {
-            btn.classList.add("incorrect");
-            mistakes = true;
-          }
-        };
-        movingRectangles.push(btn);
-      });
-    }
+function loadChoose() {
+  const q = questions[currentQuestionIndex];
+  document.getElementById("choose-question").innerText = q.question;
+  const container = document.getElementById("choose-buttons");
+  container.innerHTML = "";
 
-    function positionRectangle(rectangle, screen) {
-      const [minX, minY, maxX, maxY] = getBounds(screen.offsetWidth, screen.offsetHeight, rectangle);
-      let initialX, initialY;
-      do {
-        initialX = getRandom(minX, maxX);
-        initialY = getRandom(minY, maxY);
-        rectangle.style.left = `${initialX}px`;
-        rectangle.style.top = `${initialY}px`;
-      } while (checkCollision(rectangle, movingRectangles));
-    }
-
-    function getBounds(screenWidth, screenHeight, rectangle) {
-      const rectWidth = rectangle.offsetWidth;
-      const rectHeight = rectangle.offsetHeight;
-      return [0, 0, screenWidth - rectWidth, screenHeight - rectHeight];
-    }
-
-    function getRandom(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function checkCollision(rectangle, rectangles) {
-      const r1 = {
-        left: rectangle.offsetLeft,
-        right: rectangle.offsetLeft + rectangle.offsetWidth,
-        top: rectangle.offsetTop,
-        bottom: rectangle.offsetTop + rectangle.offsetHeight
-      };
-      return rectangles.some(other => {
-        if (other !== rectangle) {
-          const r2 = {
-            left: other.offsetLeft,
-            right: other.offsetLeft + other.offsetWidth,
-            top: other.offsetTop,
-            bottom: other.offsetTop + other.offsetHeight
-          };
-          return !(
-            r1.right < r2.left ||
-            r1.left > r2.right ||
-            r1.bottom < r2.top ||
-            r1.top > r2.bottom
-          );
-        }
-        return false;
-      });
-    }
-
-    function moveRectangle(rectangle, screen) {
-      let directionX = (Math.random() < 0.5 ? -1 : 1) * (1 + Math.random() * 2);
-      let directionY = (Math.random() < 0.5 ? -1 : 1) * (1 + Math.random() * 2);
-
-      function move() {
-        let currentX = parseFloat(rectangle.style.left) || 0;
-        let currentY = parseFloat(rectangle.style.top) || 0;
-
-        const maxX = screen.clientWidth - rectangle.offsetWidth;
-        const maxY = screen.clientHeight - rectangle.offsetHeight;
-
-        if (currentX <= 0 || currentX >= maxX) directionX *= -1;
-        if (currentY <= 0 || currentY >= maxY) directionY *= -1;
-
-        currentX = Math.max(0, Math.min(currentX + directionX * speedMultiplier, maxX));
-        currentY = Math.max(0, Math.min(currentY + directionY * speedMultiplier, maxY));
-
-        rectangle.style.left = `${currentX}px`;
-        rectangle.style.top = `${currentY}px`;
-
-        if (checkCollision(rectangle, movingRectangles)) {
-          directionX *= -1;
-          directionY *= -1;
-        }
-
-        requestAnimationFrame(move);
-      }
-
-      move();
-    }
-
-    function nextCatchQuestion() {
-      currentQuestionIndex++;
-      if (currentQuestionIndex < questions.length) {
-        loadCatch();
+  const options = shuffle([...questions.map(q => q.translation)]);
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "translation-button choose-button"; // UPDATED
+    btn.innerText = opt;
+    btn.style.position = "static";
+    btn.onclick = () => {
+      if (opt === q.translation) {
+        btn.classList.add("correct");
+        setTimeout(() => nextChooseQuestion(), 1000);
       } else {
-        finishLevel(!mistakes);
-      }
-    }
-
-    // -----------------
-    // Activity: Listen (static buttons)
-    // -----------------
-    function loadListen() {
-      const q = questions[currentQuestionIndex];
-      document.getElementById("listen-question").innerText = q.question;
-      const container = document.getElementById("listen-buttons");
-      container.innerHTML = "";
-      selectedListenButton = null;
-
-      const options = shuffle([...questions]);
-      options.forEach(opt => {
-        const btn = document.createElement("button");
-        btn.className = "translation-button";
-        btn.style.position = "static";
-        btn.style.color = "transparent";
-        btn.onclick = () => {
-          if (selectedListenButton) {
-            selectedListenButton.classList.remove("active");
-          }
-          selectedListenButton = btn;
-          btn.classList.add("active");
-          const utterance = new SpeechSynthesisUtterance(opt.translation);
-          utterance.lang = 'es-ES';
-          speechSynthesis.speak(utterance);
-        };
-        btn.dataset.correct = (opt.translation === q.translation);
-        container.appendChild(btn);
-      });
-    }
-
-    function checkListenAnswer() {
-      if (!selectedListenButton) return;
-      if (selectedListenButton.dataset.correct === "true") {
-        selectedListenButton.classList.add("correct");
-        setTimeout(() => nextListenQuestion(), 1000);
-      } else {
-        selectedListenButton.classList.add("incorrect");
+        btn.classList.add("incorrect");
         mistakes = true;
       }
+    };
+    container.appendChild(btn);
+  });
+}
+
+function nextChooseQuestion() {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    loadChoose();
+  } else {
+    finishLevel(!mistakes);
+  }
+}
+
+// -----------------
+// Activity: Tunnel
+// -----------------
+function loadTunnel() {
+  const q = questions[currentQuestionIndex];
+  document.getElementById("tunnel-question").innerText = q.question;
+  const screen = document.getElementById("tunnel-screen");
+  screen.innerHTML = "";
+
+  let correctAnswered = false;
+  let mistakes = false;
+
+  // Normalized unit directions for consistent speed and distance
+  const angles = [
+    { x: 0, y: -1 },      // Up
+    { x: 0.707, y: -0.707 }, // Up-Right
+    { x: 1, y: 0 },       // Right
+    { x: 0.707, y: 0.707 },  // Down-Right
+    { x: 0, y: 1 },       // Down
+    { x: -0.707, y: 0.707 }, // Down-Left
+    { x: -1, y: 0 },      // Left
+    { x: -0.707, y: -0.707 } // Up-Left
+  ];
+
+  const usedAngles = [];
+  const recentTranslations = [];
+
+  function getUniqueRandomTranslation() {
+    const allTranslations = questions.map(q => q.translation);
+    const available = allTranslations.filter(t => !recentTranslations.includes(t));
+
+    let selected;
+    if (available.length > 0) {
+      selected = available[Math.floor(Math.random() * available.length)];
+    } else {
+      selected = allTranslations[Math.floor(Math.random() * allTranslations.length)];
     }
 
-    function nextListenQuestion() {
-      currentQuestionIndex++;
-      if (currentQuestionIndex < questions.length) {
-        loadListen();
+    recentTranslations.push(selected);
+    if (recentTranslations.length > 5) recentTranslations.shift(); // Remember last 5
+    return selected;
+  }
+
+  function spawnButton() {
+    if (correctAnswered) return;
+
+    const opt = getUniqueRandomTranslation();
+    const btn = document.createElement("button");
+    btn.className = "moving-button tunnel-button";
+    btn.innerText = opt;
+    screen.appendChild(btn);
+
+    // Center of the screen
+    const startX = screen.offsetWidth / 2;
+    const startY = screen.offsetHeight / 2;
+
+    // Pick an unused or least recently used angle
+    let angle;
+    let attempts = 0;
+    do {
+      angle = angles[Math.floor(Math.random() * angles.length)];
+      attempts++;
+    } while (
+      usedAngles.some(a => Math.abs(a.x - angle.x) < 0.2 && Math.abs(a.y - angle.y) < 0.2) &&
+      attempts < 10
+    );
+
+    usedAngles.push(angle);
+    if (usedAngles.length > 4) usedAngles.shift();
+
+    // Project far enough so buttons exit the screen
+    const maxDistance = Math.max(screen.offsetWidth, screen.offsetHeight);
+    const targetX = startX + angle.x * maxDistance;
+    const targetY = startY + angle.y * maxDistance;
+
+    let progress = 0;
+    const speed = 0.003;
+
+    function move() {
+      progress += speed;
+      btn.style.left = `${startX + (targetX - startX) * progress}px`;
+      btn.style.top = `${startY + (targetY - startY) * progress}px`;
+      btn.style.fontSize = `${4 + 30 * Math.pow(progress, 1.2)}px`;
+
+      if (progress < 1 && !correctAnswered) {
+        requestAnimationFrame(move);
       } else {
-        finishLevel(!mistakes);
+        btn.remove();
       }
     }
 
-    function shuffle(arr) {
-      return arr.sort(() => Math.random() - 0.5);
-    }
+    btn.onclick = () => {
+      if (opt === q.translation) {
+        btn.classList.add("correct");
+        correctAnswered = true;
+        setTimeout(() => nextTunnelQuestion(), 1000);
+      } else {
+        btn.classList.add("incorrect");
+        mistakes = true;
+      }
+    };
 
-    // -----------------------
-    // Speed Control Functions
-    // -----------------------
-    function makeSlower() {
-      speedMultiplier *= 0.85; // Decrease by 15%
-      document.getElementById("normalSpeedBtn").style.display = "inline-block";
-    }
+    move();
+  }
 
-    function resetSpeed() {
-      speedMultiplier = 1;
-      document.getElementById("normalSpeedBtn").style.display = "none";
+  const spawnInterval = setInterval(() => {
+    if (correctAnswered) {
+      clearInterval(spawnInterval);
+    } else {
+      spawnButton();
     }
-  </script>
+  }, 800);
+}
+
+function nextTunnelQuestion() {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    loadTunnel();
+  } else {
+    finishLevel(!mistakes);
+  }
+}
+
+// ----------------
+// Activity: Catch
+// ----------------
+function loadCatch() {
+  const q = questions[currentQuestionIndex];
+  document.getElementById("catch-question").innerText = q.question;
+  const screen = document.getElementById("catch-screen");
+  screen.innerHTML = "";
+  movingRectangles = [];
+
+  questions.forEach(item => {
+    const btn = document.createElement("button");
+    btn.className = "translation-button catch-button"; // UPDATED
+    btn.innerText = item.translation;
+    screen.appendChild(btn);
+    positionRectangle(btn, screen);
+    moveRectangle(btn, screen);
+
+    btn.onclick = () => {
+      if (item.translation === q.translation) {
+        btn.classList.add("correct");
+        setTimeout(() => nextCatchQuestion(), 1000);
+      } else {
+        btn.classList.add("incorrect");
+        mistakes = true;
+      }
+    };
+    movingRectangles.push(btn);
+  });
+}
+
+function positionRectangle(rectangle, screen) {
+  const [minX, minY, maxX, maxY] = [0, 0, screen.offsetWidth - rectangle.offsetWidth, screen.offsetHeight - rectangle.offsetHeight];
+  const currentX = Math.random() * maxX;
+  const currentY = Math.random() * maxY;
+
+  rectangle.style.left = `${currentX}px`;
+  rectangle.style.top = `${currentY}px`;
+}
+
+function moveRectangle(rectangle, screen) {
+  let directionX = (Math.random() < 0.5 ? -1 : 1) * (1 + Math.random() * 2);
+  let directionY = (Math.random() < 0.5 ? -1 : 1) * (1 + Math.random() * 2);
+
+  function move() {
+    let currentX = parseFloat(rectangle.style.left) || 0;
+    let currentY = parseFloat(rectangle.style.top) || 0;
+
+    const maxX = screen.clientWidth - rectangle.offsetWidth;
+    const maxY = screen.clientHeight - rectangle.offsetHeight;
+
+    if (currentX <= 0 || currentX >= maxX) directionX *= -1;
+    if (currentY <= 0 || currentY >= maxY) directionY *= -1;
+
+    currentX = Math.max(0, Math.min(currentX + directionX * speedMultiplier, maxX));
+    currentY = Math.max(0, Math.min(currentY + directionY * speedMultiplier, maxY));
+
+  rectangle.style.left = `${currentX}px`;
+rectangle.style.top = `${currentY}px`;
+
+
+    requestAnimationFrame(move);
+  }
+
+  move();
+}
+
+function nextCatchQuestion() {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    loadCatch();
+  } else {
+    finishLevel(!mistakes);
+  }
+}
+
+// -----------------
+// Activity: Listen
+// -----------------
+function loadListen() {
+  const q = questions[currentQuestionIndex];
+  document.getElementById("listen-question").innerText = q.question;
+  const container = document.getElementById("listen-buttons");
+  container.innerHTML = "";
+  selectedListenButton = null;
+
+  const options = shuffle([...questions]);
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "translation-button listen-button"; // UPDATED
+    btn.style.position = "static";
+    btn.onclick = () => {
+      if (selectedListenButton) {
+        selectedListenButton.classList.remove("active");
+      }
+      selectedListenButton = btn;
+      btn.classList.add("active");
+      const utterance = new SpeechSynthesisUtterance(opt.translation);
+      utterance.lang = 'es-ES';
+      speechSynthesis.speak(utterance);
+    };
+    btn.dataset.correct = (opt.translation === q.translation);
+    container.appendChild(btn);
+  });
+}
+
+function checkListenAnswer() {
+  if (!selectedListenButton) return;
+  if (selectedListenButton.dataset.correct === "true") {
+    selectedListenButton.classList.add("correct");
+    setTimeout(() => nextListenQuestion(), 1000);
+  } else {
+    selectedListenButton.classList.add("incorrect");
+    mistakes = true;
+  }
+}
+
+function nextListenQuestion() {
+  currentQuestionIndex++;
+  if (currentQuestionIndex < questions.length) {
+    loadListen();
+  } else {
+    finishLevel(!mistakes);
+  }
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function makeSlower() {
+  speedMultiplier *= 0.85;
+  document.getElementById("normalSpeedBtn").style.display = "inline-block";
+}
+
+function resetSpeed() {
+  speedMultiplier = 1;
+  document.getElementById("normalSpeedBtn").style.display = "none";
+}
+
+function loadSpeak() {
+  const q = questions[currentQuestionIndex];
+  document.getElementById("speak-question").innerText =
+    `${q.question}`;
+  document.getElementById("speak-result").innerHTML = "";
+
+  // Disable buttons at edges
+  document.getElementById("prev-btn").disabled = currentQuestionIndex === 0;
+  document.getElementById("next-btn").disabled = currentQuestionIndex === questions.length - 1;
+}
+
+loadSpeak(); // Initialize
+
+function startSpeaking() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Speech Recognition is not supported in this browser.");
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'es-ES';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  const resultBox = document.getElementById("speak-result");
+  resultBox.classList.add('listening');
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript.trim();
+    const correctAnswer = questions[currentQuestionIndex].translation;
+    resultBox.innerHTML = renderRecognitionResult(correctAnswer, transcript);
+    resultBox.classList.remove('listening');
+  };
+
+  recognition.onspeechend = () => {
+    recognition.stop();
+    resultBox.classList.remove('listening');
+  };
+
+  recognition.onerror = () => {
+    resultBox.innerHTML = `<p style="color:red;">? Could not understand. Try again.</p>`;
+    resultBox.classList.remove('listening');
+  };
+
+  recognition.start();
+}
+
+function renderRecognitionResult(correct, user) {
+  const correctWords = correct.trim().split(/\s+/);
+  const userWords = user.trim().split(/\s+/);
+
+  const resultHTML = userWords.map((word, i) => {
+    const correctWord = correctWords[i] || "";
+    const match = word.toLowerCase() === correctWord.toLowerCase();
+    return `<span class="${match ? 'correct' : 'incorrect'}">${match ? word : word.toUpperCase()}</span>`;
+  });
+
+  const allCorrect = userWords.length === correctWords.length &&
+    userWords.every((word, i) => word.toLowerCase() === (correctWords[i] || "").toLowerCase());
+
+  if (allCorrect) {
+    return `<div class="result-box correct-box">
+              <p><strong>? Correct!</strong><br>${user}</p>
+            </div>`;
+  } else {
+    return `<div class="result-box incorrect-box">
+              <p><strong>You said:</strong><br>${resultHTML.join(" ")}</p>
+              <p><strong>Expected:</strong><br><span class="expected">${correct}</span></p>
+            </div>`;
+  }
+}
+
+function nextSpeakQuestion() {
+  if (currentQuestionIndex < questions.length - 1) {
+    currentQuestionIndex++;
+    loadSpeak();
+  }
+}
+
+function prevSpeakQuestion() {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    loadSpeak();
+  }
+}
+function showMessage(message, onContinue = null) {
+  const box = document.getElementById("message-box");
+  box.innerHTML = `
+    <div>${message}</div>
+    ${onContinue ? `<div style="margin-top: 2vh;"><button id="continue-btn">Continue</button></div>` : ""}
+  `;
+  box.style.display = "block";
+
+  function handleClick() {
+    box.style.display = "none";
+    box.removeEventListener("click", handleClick);
+    if (onContinue) onContinue();
+  }
+
+  if (onContinue) {
+    box.addEventListener("click", handleClick);
+  } else {
+    setTimeout(() => {
+      box.style.display = "none";
+    }, 3000);
+  }
+}
+
+ function toggleActivities() {
+    const activityDiv = document.getElementById('activity-buttons');
+    activityDiv.style.display = (activityDiv.style.display === 'none') ? 'flex' : 'none';
+  }
+</script>
+
+
 </body>
 </html>
