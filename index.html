@@ -846,13 +846,15 @@ function loadListen() {
     btn.onclick = () => {
       if (selectedListenButton) {
         selectedListenButton.classList.remove("active");
-      }
+      } 
       selectedListenButton = btn;
       btn.classList.add("active");
-      const utterance = new SpeechSynthesisUtterance(opt.translation);
-      utterance.lang = 'es-ES';
-      speechSynthesis.speak(utterance);
-    };
+const utterance = new SpeechSynthesisUtterance(opt.translation);
+utterance.lang = 'es-ES';
+if (selectedVoice) {
+  utterance.voice = selectedVoice;
+}
+speechSynthesis.speak(utterance);    };
     btn.dataset.correct = (opt.translation === q.translation);
     container.appendChild(btn);
   });
