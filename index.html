@@ -398,6 +398,9 @@
   </style>
 </head>
 <body>
+<button onclick="toggleVoiceSelect()">Choose Voice</button>
+<select id="voiceSelect" style="display: none;"></select>
+
 <div id="level-container" style="width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center;">
 
   <!-- Start Button -->
@@ -580,12 +583,18 @@ function loadChoose() {
   const options = shuffle([...questions.map(q => q.translation)]);
   options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.className = "translation-button choose-button"; // UPDATED
+    btn.className = "translation-button choose-button";
     btn.innerText = opt;
     btn.style.position = "static";
     btn.onclick = () => {
       if (opt === q.translation) {
         btn.classList.add("correct");
+
+        // ✅ Speak correct answer
+        const utterance = new SpeechSynthesisUtterance(opt);
+        if (selectedVoice) utterance.voice = selectedVoice;
+        speechSynthesis.speak(utterance);
+
         setTimeout(() => nextChooseQuestion(), 1000);
       } else {
         btn.classList.add("incorrect");
@@ -617,16 +626,9 @@ function loadTunnel() {
   let correctAnswered = false;
   let mistakes = false;
 
-  // Normalized unit directions for consistent speed and distance
   const angles = [
-    { x: 0, y: -1 },      // Up
-    { x: 0.707, y: -0.707 }, // Up-Right
-    { x: 1, y: 0 },       // Right
-    { x: 0.707, y: 0.707 },  // Down-Right
-    { x: 0, y: 1 },       // Down
-    { x: -0.707, y: 0.707 }, // Down-Left
-    { x: -1, y: 0 },      // Left
-    { x: -0.707, y: -0.707 } // Up-Left
+    { x: 0, y: -1 }, { x: 0.707, y: -0.707 }, { x: 1, y: 0 }, { x: 0.707, y: 0.707 },
+    { x: 0, y: 1 }, { x: -0.707, y: 0.707 }, { x: -1, y: 0 }, { x: -0.707, y: -0.707 }
   ];
 
   const usedAngles = [];
@@ -635,16 +637,12 @@ function loadTunnel() {
   function getUniqueRandomTranslation() {
     const allTranslations = questions.map(q => q.translation);
     const available = allTranslations.filter(t => !recentTranslations.includes(t));
-
-    let selected;
-    if (available.length > 0) {
-      selected = available[Math.floor(Math.random() * available.length)];
-    } else {
-      selected = allTranslations[Math.floor(Math.random() * allTranslations.length)];
-    }
+    const selected = available.length > 0
+      ? available[Math.floor(Math.random() * available.length)]
+      : allTranslations[Math.floor(Math.random() * allTranslations.length)];
 
     recentTranslations.push(selected);
-    if (recentTranslations.length > 5) recentTranslations.shift(); // Remember last 5
+    if (recentTranslations.length > 5) recentTranslations.shift();
     return selected;
   }
 
@@ -657,13 +655,10 @@ function loadTunnel() {
     btn.innerText = opt;
     screen.appendChild(btn);
 
-    // Center of the screen
     const startX = screen.offsetWidth / 2;
     const startY = screen.offsetHeight / 2;
 
-    // Pick an unused or least recently used angle
-    let angle;
-    let attempts = 0;
+    let angle, attempts = 0;
     do {
       angle = angles[Math.floor(Math.random() * angles.length)];
       attempts++;
@@ -675,7 +670,6 @@ function loadTunnel() {
     usedAngles.push(angle);
     if (usedAngles.length > 4) usedAngles.shift();
 
-    // Project far enough so buttons exit the screen
     const maxDistance = Math.max(screen.offsetWidth, screen.offsetHeight);
     const targetX = startX + angle.x * maxDistance;
     const targetY = startY + angle.y * maxDistance;
@@ -699,6 +693,12 @@ function loadTunnel() {
     btn.onclick = () => {
       if (opt === q.translation) {
         btn.classList.add("correct");
+
+        // ✅ Speak correct answer
+        const utterance = new SpeechSynthesisUtterance(opt);
+        if (selectedVoice) utterance.voice = selectedVoice;
+        speechSynthesis.speak(utterance);
+
         correctAnswered = true;
         setTimeout(() => nextTunnelQuestion(), 1000);
       } else {
@@ -740,7 +740,7 @@ function loadCatch() {
 
   questions.forEach(item => {
     const btn = document.createElement("button");
-    btn.className = "translation-button catch-button"; // UPDATED
+    btn.className = "translation-button catch-button";
     btn.innerText = item.translation;
     screen.appendChild(btn);
     positionRectangle(btn, screen);
@@ -749,23 +749,28 @@ function loadCatch() {
     btn.onclick = () => {
       if (item.translation === q.translation) {
         btn.classList.add("correct");
+
+        // ✅ Speak correct answer
+        const utterance = new SpeechSynthesisUtterance(item.translation);
+        if (selectedVoice) utterance.voice = selectedVoice;
+        speechSynthesis.speak(utterance);
+
         setTimeout(() => nextCatchQuestion(), 1000);
       } else {
         btn.classList.add("incorrect");
         mistakes = true;
       }
     };
+
     movingRectangles.push(btn);
   });
 }
 
 function positionRectangle(rectangle, screen) {
-  const [minX, minY, maxX, maxY] = [0, 0, screen.offsetWidth - rectangle.offsetWidth, screen.offsetHeight - rectangle.offsetHeight];
-  const currentX = Math.random() * maxX;
-  const currentY = Math.random() * maxY;
-
-  rectangle.style.left = `${currentX}px`;
-  rectangle.style.top = `${currentY}px`;
+  const maxX = screen.offsetWidth - rectangle.offsetWidth;
+  const maxY = screen.offsetHeight - rectangle.offsetHeight;
+  rectangle.style.left = `${Math.random() * maxX}px`;
+  rectangle.style.top = `${Math.random() * maxY}px`;
 }
 
 function moveRectangle(rectangle, screen) {
@@ -785,9 +790,8 @@ function moveRectangle(rectangle, screen) {
     currentX = Math.max(0, Math.min(currentX + directionX * speedMultiplier, maxX));
     currentY = Math.max(0, Math.min(currentY + directionY * speedMultiplier, maxY));
 
-  rectangle.style.left = `${currentX}px`;
-rectangle.style.top = `${currentY}px`;
-
+    rectangle.style.left = `${currentX}px`;
+    rectangle.style.top = `${currentY}px`;
 
     requestAnimationFrame(move);
   }
@@ -986,6 +990,46 @@ function showMessage(message, onContinue = null) {
     const activityDiv = document.getElementById('activity-buttons');
     activityDiv.style.display = (activityDiv.style.display === 'none') ? 'flex' : 'none';
   }
+let availableVoices = [];
+let selectedVoice = null;
+
+function toggleVoiceSelect() {
+  const select = document.getElementById("voiceSelect");
+  select.style.display = (select.style.display === "none") ? "inline-block" : "none";
+}
+
+function cleanVoiceName(name) {
+  return name
+    .replace(/\(.*?\)/g, '')            // Remove anything in parentheses
+    .replace(/\b(Google|Microsoft|Spanish)\b/gi, '') // Remove specific words
+    .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '') // Remove all non-letter/symbols except spaces
+    .replace(/\s+/g, ' ')               // Replace multiple spaces with one
+    .trim();                            // Trim leading/trailing spaces
+}
+
+function populateVoiceList() {
+  availableVoices = speechSynthesis.getVoices().filter(voice => voice.lang.startsWith("es"));
+  const voiceSelect = document.getElementById("voiceSelect");
+  voiceSelect.innerHTML = "";
+
+  availableVoices.forEach((voice, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.text = cleanVoiceName(voice.name);
+    voiceSelect.appendChild(option);
+  });
+
+  if (availableVoices.length > 0) {
+    selectedVoice = availableVoices[0];
+  }
+}
+
+speechSynthesis.onvoiceschanged = populateVoiceList;
+
+document.getElementById("voiceSelect").addEventListener("change", (e) => {
+  selectedVoice = availableVoices[e.target.value];
+});
+
 </script>
 
 
