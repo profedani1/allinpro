@@ -393,13 +393,33 @@
   padding: 2vh;
   box-sizing: border-box;
 }
+.dropdown {
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  background: black;
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+}
 
+.dropdown div {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdown div:hover {
+  background-color: cyan;
+color:black;
+}
 
   </style>
 </head>
 <body>
-<button onclick="toggleVoiceSelect()">Choose Voice</button>
-<select id="voiceSelect" style="display: none;"></select>
+<button onclick="toggleCustomDropdown()">Choose Voice</button>
+<div id="customDropdown" class="dropdown" style="display: none;"></div>
+
+
 
 <div id="level-container" style="width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center;">
 
@@ -993,42 +1013,45 @@ function showMessage(message, onContinue = null) {
 let availableVoices = [];
 let selectedVoice = null;
 
-function toggleVoiceSelect() {
-  const select = document.getElementById("voiceSelect");
-  select.style.display = (select.style.display === "none") ? "inline-block" : "none";
-}
-
 function cleanVoiceName(name) {
   return name
-    .replace(/\(.*?\)/g, '')            // Remove anything in parentheses
+    .replace(/\(.*?\)/g, '')                         // Remove anything in parentheses
     .replace(/\b(Google|Microsoft|Spanish)\b/gi, '') // Remove specific words
-    .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '') // Remove all non-letter/symbols except spaces
-    .replace(/\s+/g, ' ')               // Replace multiple spaces with one
-    .trim();                            // Trim leading/trailing spaces
+    .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '')        // Remove all non-letter symbols
+    .replace(/\s+/g, ' ')                            // Collapse multiple spaces
+    .trim();
 }
 
-function populateVoiceList() {
-  availableVoices = speechSynthesis.getVoices().filter(voice => voice.lang.startsWith("es"));
-  const voiceSelect = document.getElementById("voiceSelect");
-  voiceSelect.innerHTML = "";
-
-  availableVoices.forEach((voice, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.text = cleanVoiceName(voice.name);
-    voiceSelect.appendChild(option);
-  });
-
-  if (availableVoices.length > 0) {
-    selectedVoice = availableVoices[0];
+function toggleCustomDropdown() {
+  const dropdown = document.getElementById("customDropdown");
+  if (dropdown.style.display === "none") {
+    populateCustomDropdown();
+    dropdown.style.display = "block";
+  } else {
+    dropdown.style.display = "none";
   }
 }
 
-speechSynthesis.onvoiceschanged = populateVoiceList;
+function populateCustomDropdown() {
+  const dropdown = document.getElementById("customDropdown");
+  dropdown.innerHTML = "";
 
-document.getElementById("voiceSelect").addEventListener("change", (e) => {
-  selectedVoice = availableVoices[e.target.value];
-});
+  availableVoices = speechSynthesis.getVoices().filter(voice => voice.lang.startsWith("es"));
+
+  availableVoices.forEach((voice, index) => {
+    const cleanedName = cleanVoiceName(voice.name);
+    const div = document.createElement("div");
+    div.textContent = cleanedName || `Voice ${index + 1}`;
+    div.onclick = () => {
+      selectedVoice = voice;
+      dropdown.style.display = "none";
+    };
+    dropdown.appendChild(div);
+  });
+}
+
+// Ensure voices are ready
+speechSynthesis.onvoiceschanged = populateCustomDropdown;
 
 </script>
 
